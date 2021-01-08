@@ -7,6 +7,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import productRouter from './app/product/router.js';
 import categoryRouter from './app/category/router.js';
+import tagRouter from './app/tag/router.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -25,10 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/static', express.static('static'));
 app.use('/api', productRouter);
 app.use('/api', categoryRouter);
+app.use('/api', tagRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  return res.status(404).json({
+    message: 'Resource / path not found.', 
+    fields: null
+  })
 });
 
 // error handler
