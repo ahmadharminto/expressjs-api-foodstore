@@ -6,6 +6,7 @@ import logger from 'morgan';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import productRouter from './app/product/router.js';
+import categoryRouter from './app/category/router.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/static', express.static('static'));
 app.use('/api', productRouter);
+app.use('/api', categoryRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import mongoose from 'mongoose';
 import config from '../config.js';
 import Product from './model.js';
-import mongoose from 'mongoose';
 
 export const index = async (req, res, next) => {
     try{
@@ -14,7 +14,7 @@ export const index = async (req, res, next) => {
 
         return res.json(products);
     } catch(err) {
-        next(err);
+        return next(err);
     }
 }
 
@@ -155,6 +155,6 @@ export const destroy = async (req, res, next) => {
                 fields: '_id'
             });
         }
-        next(err);
+        return next(err);
     }
 }
