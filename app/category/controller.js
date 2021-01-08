@@ -39,7 +39,7 @@ export const update = async (req, res, next) => {
         if (!category) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return res.json(category);
@@ -54,7 +54,7 @@ export const update = async (req, res, next) => {
         if (err instanceof mongoose.CastError) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return next(err);
@@ -67,7 +67,7 @@ export const destroy = async (req, res, next) => {
         if (!category) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return res.json(category);
@@ -75,7 +75,7 @@ export const destroy = async (req, res, next) => {
         if (err instanceof mongoose.CastError) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return next(err);

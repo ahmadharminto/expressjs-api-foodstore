@@ -3,12 +3,16 @@ import path from 'path';
 import mongoose from 'mongoose';
 import config from '../config.js';
 import Product from './model.js';
+import Category from '../category/model.js';
+import Tag from '../tag/model.js';
 
 export const index = async (req, res, next) => {
     try{
         let { limit = 10, skip = 0 } = req.query;
         let products = await Product
             .find()
+            .populate('category')
+            .populate('tags')
             .limit(parseInt(limit))
             .skip(parseInt(skip));
 
@@ -21,6 +25,30 @@ export const index = async (req, res, next) => {
 export const store = async (req, res, next) => {
     try {
         let payload = req.body;
+
+        if (payload.category) {
+            try {
+                let _ = await Category.findOne({_id: payload.category});
+            } catch (err) {
+                return res.status(422).json({
+                    message: `Resource ${payload.category} is not found.`, 
+                    fields: {name: 'category'},
+                    clue: 'Use _id from /api/categories'
+                });
+            }
+        }
+
+        if (payload.tags && payload.tags.length) {
+            try {
+                let _ = await Tag.find({_id: {$in: payload.tags}});
+            } catch (err) {
+                return res.status(422).json({
+                    message: `Some resources are not found.`, 
+                    fields: {name: 'tags'},
+                    clue: 'Use _id from /api/tags'
+                });
+            }
+        }
 
         if (req.file) {
             let tmp_path = req.file.path; 
@@ -38,6 +66,12 @@ export const store = async (req, res, next) => {
                     await product.save();
                     return res.json(product);
                 } catch (err) {
+                    if (err && err.name === 'ValidationError') {
+                        return res.status(422).json({
+                            message: err.message, 
+                            fields: err.errors
+                        });
+                    }
                     return next(err);
                 }
             });
@@ -65,6 +99,18 @@ export const update = async (req, res, next) => {
     try {
         let payload = req.body;
 
+        if (payload.category) {
+            try {
+                let _ = await Category.findOne({_id: payload.category});
+            } catch (err) {
+                return res.status(422).json({
+                    message: `Resource ${payload.category} is not found.`, 
+                    fields: {name: 'category'},
+                    clue: 'Use _id from /api/categories'
+                });
+            }
+        }
+
         if (req.file) {
             let tmp_path = req.file.path; 
             let originalExt = req.file.originalname.split('.')[req.file.originalname.split('.').length - 1];
@@ -81,7 +127,7 @@ export const update = async (req, res, next) => {
                     if (!product) {
                         return res.status(404).json({
                             message: `Resource ${req.params.id} is not found.`, 
-                            fields: '_id'
+                            fields: {name: '_id'}
                         });
                     }
 
@@ -96,7 +142,13 @@ export const update = async (req, res, next) => {
                     if (err instanceof mongoose.CastError) {
                         return res.status(404).json({
                             message: `Resource ${req.params.id} is not found.`, 
-                            fields: '_id'
+                            fields: {name: '_id'}
+                        });
+                    }
+                    if (err && err.name === 'ValidationError') {
+                        return res.status(422).json({
+                            message: err.message, 
+                            fields: err.errors
                         });
                     }
                     return next(err);
@@ -111,7 +163,7 @@ export const update = async (req, res, next) => {
             if (!product) {
                 return res.status(404).json({
                     message: `Resource ${req.params.id} is not found.`, 
-                    fields: '_id'
+                    fields: {name: '_id'}
                 });
             }
             return res.json(product);
@@ -127,7 +179,7 @@ export const update = async (req, res, next) => {
         if (err instanceof mongoose.CastError) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return next(err);
@@ -140,7 +192,7 @@ export const destroy = async (req, res, next) => {
         if (!product) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         let currentImage = `${config.rootPath}/${config.imageDir}/${product.image_url}`;
@@ -152,7 +204,7 @@ export const destroy = async (req, res, next) => {
         if (err instanceof mongoose.CastError) {
             return res.status(404).json({
                 message: `Resource ${req.params.id} is not found.`, 
-                fields: '_id'
+                fields: {name: '_id'}
             });
         }
         return next(err);

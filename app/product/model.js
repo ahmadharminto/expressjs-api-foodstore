@@ -15,7 +15,16 @@ const productSchema = mongoose.Schema({
         type: Number, 
         default: 0
     },
-    image_url: String
+    image_url: String,
+    category: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Category'
+    },
+    tags: [
+        {
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Tag'}
+    ]
 }, { timestamps: true })
 
 export default mongoose.model('Product', productSchema);
