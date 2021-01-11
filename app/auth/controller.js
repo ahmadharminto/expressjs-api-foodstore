@@ -74,7 +74,7 @@ export const logout = async (req, res, next) => {
     let token = getToken(req);
     let user = await User.findOneAndUpdate({token: {$in: [token]}}, {$pull: {token}}, {useFindAndModify: false});
     if (!user || !token) {
-        return res.status(422).json({
+        return res.status(400).json({
             message: 'Invalid user session.', 
             fields: null
         });

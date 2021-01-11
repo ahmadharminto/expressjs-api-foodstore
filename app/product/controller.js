@@ -5,6 +5,7 @@ import config from '../config.js';
 import Product from './model.js';
 import Category from '../category/model.js';
 import Tag from '../tag/model.js';
+import policyFor from '../auth/policy.js';
 
 export const index = async (req, res, next) => {
     try{
@@ -59,6 +60,14 @@ export const index = async (req, res, next) => {
 
 export const store = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('create', 'Product')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
 
         if (payload.category) {
@@ -132,6 +141,14 @@ export const store = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('uodate', 'Product')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
 
         if (payload.category) {
@@ -223,6 +240,14 @@ export const update = async (req, res, next) => {
 
 export const destroy = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('delete', 'Product')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let product = await Product.findOneAndDelete({_id: req.params.id});
         if (!product) {
             return res.status(404).json({

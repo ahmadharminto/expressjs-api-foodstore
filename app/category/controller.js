@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Category from './model.js';
+import policyFor from '../auth/policy.js';
 
 export const index = async (req, res, next) => {
     try{
@@ -17,6 +18,14 @@ export const index = async (req, res, next) => {
 
 export const store = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('create', 'Category')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
         let category = new Category(payload);
         await category.save();
@@ -34,6 +43,14 @@ export const store = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('update', 'Category')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
         let category = await Category.findOneAndUpdate({_id: req.params.id}, payload, {new: true, runValidators: true});
         if (!category) {
@@ -63,6 +80,14 @@ export const update = async (req, res, next) => {
 
 export const destroy = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('delete', 'Category')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let category = await Category.findOneAndDelete({_id: req.params.id});
         if (!category) {
             return res.status(404).json({

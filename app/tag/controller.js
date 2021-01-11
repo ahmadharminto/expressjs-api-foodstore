@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Tag from './model.js';
+import policyFor from '../auth/policy.js';
 
 export const index = async (req, res, next) => {
     try{
@@ -17,6 +18,14 @@ export const index = async (req, res, next) => {
 
 export const store = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('create', 'Tag')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
         let tag = new Tag(payload);
         await tag.save();
@@ -34,6 +43,14 @@ export const store = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('update', 'Tag')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let payload = req.body;
         let tag = await Tag.findOneAndUpdate({_id: req.params.id}, payload, {new: true, runValidators: true});
         if (!tag) {
@@ -63,6 +80,14 @@ export const update = async (req, res, next) => {
 
 export const destroy = async (req, res, next) => {
     try {
+        let policy = policyFor(req.user);
+
+        if (!policy.can('delete', 'Tag')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+
         let tag = await Tag.findOneAndDelete({_id: req.params.id});
         if (!tag) {
             return res.status(404).json({
