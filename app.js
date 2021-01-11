@@ -1,4 +1,3 @@
-import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
@@ -8,6 +7,8 @@ import { fileURLToPath } from 'url';
 import productRouter from './app/product/router.js';
 import categoryRouter from './app/category/router.js';
 import tagRouter from './app/tag/router.js';
+import authRouter from './app/auth/router.js';
+import { decodeToken } from './app/auth/middleware.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/static', express.static('static'));
+app.use(decodeToken);
+app.use('/auth', authRouter);
 app.use('/api', productRouter);
 app.use('/api', categoryRouter);
 app.use('/api', tagRouter);

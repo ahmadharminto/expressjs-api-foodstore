@@ -8,9 +8,44 @@ import Tag from '../tag/model.js';
 
 export const index = async (req, res, next) => {
     try{
-        let { limit = 10, skip = 0 } = req.query;
+        let { limit = 10, skip = 0, q = '', category = '', tags = [] } = req.query;
+        let filters  = {};
+
+        if (q.length) {
+            filters = {
+                ...filters, 
+                name: {$regex: `${q}`, $options: 'i'}
+            }
+        }
+
+        if (category.length) {
+            let _category = await Category.findOne({name: {$regex: `${category}`, $options: 'i'}});
+            if (_category) {
+                filters = {...filters, category: _category._id}
+            } else {
+                return res.status(422).json({
+                    message: `Resource ${category} is not found.`, 
+                    fields: {name: 'category'},
+                    hint: 'Use name from /api/categories'
+                }); 
+            }
+        }
+
+        if (tags.length) {
+            let _tags = await Tag.find({name: {$in: tags}});
+            if (_tags.length) {
+                filters = {...filters, tags: {$in: _tags.map(tag => tag._id)}}
+            } else {
+                return res.status(422).json({
+                    message: `Resource tags is not found.`, 
+                    fields: {name: 'tags'},
+                    hint: 'Use name from /api/tags'
+                }); 
+            }
+        }
+
         let products = await Product
-            .find()
+            .find(filters)
             .populate('category')
             .populate('tags')
             .limit(parseInt(limit))
@@ -33,7 +68,7 @@ export const store = async (req, res, next) => {
                 return res.status(422).json({
                     message: `Resource ${payload.category} is not found.`, 
                     fields: {name: 'category'},
-                    clue: 'Use _id from /api/categories'
+                    hint: 'Use _id from /api/categories'
                 });
             }
         }
@@ -45,7 +80,7 @@ export const store = async (req, res, next) => {
                 return res.status(422).json({
                     message: `Some resources are not found.`, 
                     fields: {name: 'tags'},
-                    clue: 'Use _id from /api/tags'
+                    hint: 'Use _id from /api/tags'
                 });
             }
         }
@@ -106,7 +141,7 @@ export const update = async (req, res, next) => {
                 return res.status(422).json({
                     message: `Resource ${payload.category} is not found.`, 
                     fields: {name: 'category'},
-                    clue: 'Use _id from /api/categories'
+                    hint: 'Use _id from /api/categories'
                 });
             }
         }
