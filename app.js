@@ -8,6 +8,8 @@ import productRouter from './app/product/router.js';
 import categoryRouter from './app/category/router.js';
 import tagRouter from './app/tag/router.js';
 import authRouter from './app/auth/router.js';
+import locationRouter from './app/geolocation/router.js';
+import deliveryAddressRouter from './app/delivery-address/router.js';
 import { decodeToken } from './app/auth/middleware.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +31,8 @@ app.use('/auth', authRouter);
 app.use('/api', productRouter);
 app.use('/api', categoryRouter);
 app.use('/api', tagRouter);
+app.use('/api', locationRouter);
+app.use('/api', deliveryAddressRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -45,14 +45,20 @@ export const index = async (req, res, next) => {
             }
         }
 
+        let count = await Product.find(filters).countDocuments();
+
         let products = await Product
             .find(filters)
             .populate('category')
             .populate('tags')
             .limit(parseInt(limit))
-            .skip(parseInt(skip));
+            .skip(parseInt(skip))
+            .select('-__v');
 
-        return res.json(products);
+        return res.json({
+            data: products,
+            count
+        });
     } catch(err) {
         return next(err);
     }

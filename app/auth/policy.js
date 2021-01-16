@@ -12,7 +12,7 @@ const policies = {
         can('read', 'Cart', {user_id: user._id});
         can('update', 'Cart', {user_id: user.id});
         can('view', 'DeliveryAddress');
-        can('create', 'DeliveryAddress', {user_id: user._id});
+        can('create', 'DeliveryAddress');
         can('read', 'DeliveryAddress', {user_id: user._id});
         can('update', 'DeliveryAddress', {user_id: user._id});
         can('delete', 'DeliveryAddress', {user_id: user._id});
