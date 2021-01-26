@@ -31,7 +31,6 @@ export const index = async (req, res, next) => {
 export const update = async (req, res, next) => {
     try {
         let policy = policyFor(req.user);
-
         if (!policy.can('update', 'Cart')) {
             return res.status(403).json({
                 message: `Unauthorized.`
@@ -56,8 +55,14 @@ export const update = async (req, res, next) => {
             }
         });
 
-        // await Cart.deleteMany({user: req.user._id});
-        await Cart.bulkWrite(cartItems.map(item => {
+        if (!cartItems) {
+            return res.status(422).json({
+                message: 'Items <array of product object> is required.', 
+                fields: {name: 'items'}
+            });
+        }
+
+        await Cart.bulkWrite(cartItems?.map(item => {
             return {
                 updateOne: {
                     filter: {user: req.user._id, product: item.product}, 
@@ -78,3 +83,29 @@ export const update = async (req, res, next) => {
         return next(err);
     }
 } 
+
+export const destroy = async (req, res, next) => {
+    try {
+        let policy = policyFor(req.user);
+        if (!policy.can('delete', 'Cart')) {
+            return res.status(403).json({
+                message: `Unauthorized.`
+            });
+        }
+        let count = await Cart
+            .find({user: req.user._id})
+            .countDocuments();
+        await Cart.deleteMany({user: req.user._id});
+        return res.json({
+            message: `${count} items deleted.`
+        })
+    } catch (err) {
+        if (err && err.name === 'ValidationError') {
+            return res.status(422).json({
+                message: err.message, 
+                fields: err.errors
+            });
+        }
+        return next(err);
+    }
+}
