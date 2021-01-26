@@ -10,7 +10,6 @@ export const decodeToken = async (req, res, next) => {
 
         req.user = jwt.verify(token, config.jwtSecret); 
         let user = await User.findOne({token: {$in: [token]}});
-        console.log(user)
         if (!user) {
             return res.status(401).json({
                 message: 'Unauthenticated : token expired.', 

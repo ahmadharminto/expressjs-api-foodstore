@@ -61,7 +61,7 @@ export const update = async (req, res, next) => {
     try {
         let policy = policyFor(req.user);
         let { id } = req.params;
-        let { _id, ...payload } = req.body;
+        let payload = req.body;
         let address = await DeliveryAddress.findOne({ _id: id});
         let subjectAddress = subject('DeliveryAddress', { ...address, user_id: address.user });
         if (!policy.can('update', subjectAddress)) {
@@ -69,7 +69,7 @@ export const update = async (req, res, next) => {
                 message: `Unauthorized.`
             });
         }
-        address = DeliveryAddress.findOneAndUpdate({ _id: id }, payload, { new : true });
+        address = await DeliveryAddress.findOneAndUpdate({ _id: id }, payload, { new : true });
         return res.json(address);
     } catch (err) {
         if (err && err.name === 'ValidationError') {
@@ -87,13 +87,20 @@ export const destroy = async (req, res, next) => {
         let policy = policyFor(req.user);
         let { id } = req.params;
         let address = await DeliveryAddress.findOne({ _id: id});
-        let subjectAddress = subject('DeliveryAddress', { ...address, user: address.user });
+        if (!address) {
+            return res.status(404).json({
+                message: `Resource ${req.params.id} is not found.`, 
+                fields: {name: '_id'}
+            });
+        }
+
+        let subjectAddress = subject('DeliveryAddress', { ...address, user_id: address.user });
         if (!policy.can('delete', subjectAddress)) {
             return res.status(403).json({
                 message: `Unauthorized.`
             });
         }
-        DeliveryAddress.findOneAndDelete({ _id: id });
+        await DeliveryAddress.findOneAndDelete({ _id: id });
         return res.json(address);
     } catch (err) {
         if (err && err.name === 'ValidationError') {
