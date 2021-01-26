@@ -10,6 +10,7 @@ import tagRouter from './app/tag/router.js';
 import authRouter from './app/auth/router.js';
 import locationRouter from './app/geolocation/router.js';
 import deliveryAddressRouter from './app/delivery-address/router.js';
+import cartRouter from './app/cart/router.js';
 import { decodeToken } from './app/auth/middleware.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,7 @@ app.use('/api', categoryRouter);
 app.use('/api', tagRouter);
 app.use('/api', locationRouter);
 app.use('/api', deliveryAddressRouter);
+app.use('/api', cartRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
