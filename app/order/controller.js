@@ -23,7 +23,13 @@ export const index = async (req, res, next) => {
             .find({user: req.user._id})
             .limit(parseInt(limit))
             .skip(parseInt(skip))
-            .populate('order_items')
+            .populate({
+                path: 'order_items',
+                populate: {
+                    path: 'product',
+                    model: 'Product'
+                }
+            })
             .sort('-createdAt');
 
         return res.json({

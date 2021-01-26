@@ -36,16 +36,19 @@ const orderSchema = mongoose.Schema({
     ]
 }, { 
     timestamps: true,
-    toJSON: {
-        virtuals: true
-    }
+    toJSON: { virtuals: true }
 });
 
-orderSchema.plugin(AutoIncrement, { inc_field: 'order_number'});
-// orderSchema.virtual('items_count').get(() => {
-//     return this.order_items.reduce((total, item) => {
-//         return total + parseInt(item.qty);
-//     }, 0);
-// });
+orderSchema.plugin(AutoIncrement, { inc_field: 'order_number' });
+orderSchema.virtual('items_count').get(function () {
+    return this.order_items.reduce((total, item) => {
+        return total + parseInt(item.qty);
+    }, 0);
+});
+orderSchema.virtual('total_price').get(function () {
+    return this.order_items.reduce((total, item) => {
+        return total + item.total_price;
+    }, 0);
+});
 
 export default mongoose.model('Order', orderSchema);
