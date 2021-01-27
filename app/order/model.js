@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import mongooseSequence from 'mongoose-sequence';
+import mongooseSequence from 'mongoose-sequence'
+import Invoice from '../invoice/model.js';
 
 const AutoIncrement = mongooseSequence(mongoose);
 
@@ -49,6 +50,18 @@ orderSchema.virtual('total_price').get(function () {
     return this.order_items.reduce((total, item) => {
         return total + item.total_price;
     }, 0);
+});
+orderSchema.post('save', async function() {
+    let sub_total = this.order_items.reduce((sum, item) => sum += (item.price * item.qty), 0);
+    let invoice = new Invoice({
+        user: this.user, 
+        order: this._id, 
+        sub_total: sub_total, 
+        delivery_fee: parseInt(this.delivery_fee),
+        total: parseInt(sub_total + this.delivery_fee), 
+        delivery_address: this.delivery_address
+    });
+    await invoice.save();
 });
 
 export default mongoose.model('Order', orderSchema);

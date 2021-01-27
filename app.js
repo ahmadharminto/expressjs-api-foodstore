@@ -12,7 +12,9 @@ import locationRouter from './app/geolocation/router.js';
 import deliveryAddressRouter from './app/delivery-address/router.js';
 import cartRouter from './app/cart/router.js';
 import orderRouter from './app/order/router.js';
+import invoiceRouter from './app/invoice/router.js';
 import { decodeToken } from './app/auth/middleware.js';
+import cors from 'cors';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -27,6 +29,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 
 app.use(decodeToken);
 app.use('/auth', authRouter);
@@ -37,6 +40,7 @@ app.use('/api', locationRouter);
 app.use('/api', deliveryAddressRouter);
 app.use('/api', cartRouter);
 app.use('/api', orderRouter);
+app.use('/api', invoiceRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
